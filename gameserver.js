@@ -19,7 +19,7 @@ var app = require('http').createServer();
 
 var io = require('socket.io')(app);
 
-var TicTacToeGame = require('./gamemodel.js');
+var Game = require('./gamemodel.js');
 var GameList = require('./gamelist.js');
 
 app.listen(8080, function(){
@@ -31,13 +31,16 @@ app.listen(8080, function(){
 // ------------------------
 
 let games = new GameList();
+//games.createGame(1,1,4,8,10);
+//games.joinGame(1,2,2);
 
 io.on('connection', function (socket) {
     console.log('client has connected');
 
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
-    	let game = games.createGame(data.playerName, socket.id);
+        console.log(data);
+    	let game = games.createGame(data.playerName, socket.id, data.gameSize, data.linhas, data.colunas);
     	// Use socket channels/rooms
 		socket.join(game.gameID);
 		// Notification to the client that created the game

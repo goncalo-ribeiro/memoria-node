@@ -1,22 +1,39 @@
 /*jshint esversion: 6 */
 
-class TicTacToeGame {
-    constructor(ID, player1Name) {
+class Game {
+    constructor(ID, gameSize, linhas, colunas) {
         this.gameID = ID;
         this.gameEnded = false;
         this.gameStarted = false;
-        this.player1= player1Name;
-        this.player1SocketID = 0;
-        this.player2= '';
-        this.player2SocketID = 0;
+        this.gameSize = gameSize;
+        if(linhas !== undefined && colunas !== undefined && linhas <= 8 && colunas <= 10){
+            this.linhas=linhas;
+            this.colunas=colunas;
+        }else{
+            this.linhas=gameSize > 3 ? 6 : 4;
+            this.colunas=gameSize > 2 ? 6 : 4;
+        }
+        this.players=[];
         this.playerTurn = 1;
         this.winner = 0;
-        this.board = [0,0,0,0,0,0,0,0,0];
+        this.board = this.newBoard(this.linhas, this.colunas);
     }
 
-    join(player2Name){
-        this.player2= player2Name;
-        this.gameStarted = true;
+    newBoard(linhas, colunas){
+        const total = linhas*colunas;
+        let temp=[];
+        let board=[];
+        for(let i = 0; i < total; i+=2){
+            temp[i]=i/2;
+            temp[i+1]=i/2;
+        }
+        let random;
+        for(let i = 0; i < total; i++){
+            random = Math.round(Math.random()*(temp.length-1));
+            board[i]={show: false, piece: temp[random]};
+            temp.splice(random, 1);
+        }
+        return board;
     }
 
     hasRow(value){
@@ -78,4 +95,4 @@ class TicTacToeGame {
 
 }
 
-module.exports = TicTacToeGame;
+module.exports = Game;
