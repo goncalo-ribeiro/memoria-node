@@ -41,22 +41,21 @@ io.on('connection', function (socket) {
     	console.log('A new game is about to be created');
         console.log(data);
     	let game = games.createGame(data.name, data.playerId, socket.id, data.size, data.linhas, data.colunas);
-    	console.log(game);
         // Use socket channels/rooms
 		socket.join(game.gameID);
 		// Notification to the client that created the game
-		socket.emit('active_games_changed');
+		socket.emit('my_active_games_changed');
 		// Notification to all clients
 		io.emit('lobby_changed');
     });
 
-    socket.on('request_lobby_games_list', function(data){
-        console.log('A lobby list request has been filed by ' + data.playerName);
-        socket.emit('refresh_lobby_games_list', {lobbyGames: games.getLobbyGamesOf(socket.id)} );
+    socket.on('get_games_lobby', function(data){
+        console.log('A lobby list request has been filed by ' + socket.id);
+        socket.emit('lobby_games_changed', {lobbyGames: games.getLobbyGamesOf(socket.id)} );
     });
 
-    socket.on('request_active_games_list', function(data){
-        socket.emit('refresh_active_games_list', {activeGames: games.getConnectedGamesOf(socket.id)} );
+    socket.on('get_active_games', function(data){
+        socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
     });
 
     socket.on('request_join_game', function(data){
@@ -94,7 +93,7 @@ io.on('connection', function (socket) {
             console.log('socket ' + socket.id + ' removed from game!');
             socket.leave(data.gameID);
             console.log('socket ' + socket.id + ' left room!');
-            socket.emit('refresh_active_games_list', {activeGames: games.getConnectedGamesOf(socket.id)} );
+            socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
         }
     });
 

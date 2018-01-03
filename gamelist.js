@@ -52,9 +52,12 @@ class GameList {
     getConnectedGamesOf(socketID) {
     	let games = [];
     	for (var [key, value] of this.games) {
-    		if ((value.player1SocketID == socketID) || (value.player2SocketID == socketID)) {
-    			games.push(value);
-    		}
+		    for(let i = 0; i < value.players.length ; i++){
+                if(value.players[i].socket == socketID){
+                    games.push(value);
+                    break;
+                }
+            }
 		}
 		return games;
     }
@@ -63,9 +66,12 @@ class GameList {
     	let games = [];
     	for (var [key, value] of this.games) {
     		if ((!value.gameStarted) && (!value.gameEnded))  {
-    			if ((value.player1SocketID != socketID) && (value.player2SocketID != socketID)) {
-    				games.push(value);
-    			}
+                for(let i = 0; i < value.players.length ; i++){
+                    if(value.players[i].socket == socketID){
+                        games.push(value);
+                        break;
+                    }
+                }
     		}
 		}
 		return games;
