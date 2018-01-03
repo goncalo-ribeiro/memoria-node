@@ -1,8 +1,9 @@
 /*jshint esversion: 6 */
 
 class Game {
-    constructor(ID, gameSize, linhas, colunas) {
+    constructor(ID, name, gameSize, linhas, colunas) {
         this.gameID = ID;
+        this.name = name;
         this.gameEnded = false;
         this.gameStarted = false;
         this.gameSize = gameSize;

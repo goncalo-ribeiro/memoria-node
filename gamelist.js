@@ -13,20 +13,20 @@ class GameList {
     	return game;
     }
 
-    createGame(playerName, socketID, gameSize, linhas, colunas) {
+    createGame(name, playerId, socketID, gameSize, linhas, colunas) {
     	this.contadorID = this.contadorID+1;
-    	var game = new Game(this.contadorID, gameSize, linhas, colunas);
-    	game.players[game.players.length] = {name: playerName, socket: socketID};
+    	var game = new Game(this.contadorID, name, gameSize, linhas, colunas);
+    	game.players[game.players.length] = {id: playerId, socket: socketID};
     	this.games.set(game.gameID, game);
     	return game;
     }
 
-    joinGame(gameID, playerName, socketID) {
+    joinGame(gameID, playerId, socketID) {
     	let game = this.gameByID(gameID);
     	if (game===null || game.players.length >= game.gameSize) {
     		return null;
     	}
-    	game.players[game.players.length] = {name: playerName, socket: socketID};
+    	game.players[game.players.length] = {id: playerId, socket: socketID};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
         }

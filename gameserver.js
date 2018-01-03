@@ -40,8 +40,9 @@ io.on('connection', function (socket) {
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
         console.log(data);
-    	let game = games.createGame(data.playerName, socket.id, data.gameSize, data.linhas, data.colunas);
-    	// Use socket channels/rooms
+    	let game = games.createGame(data.name, data.playerId, socket.id, data.size, data.linhas, data.colunas);
+    	console.log(game);
+        // Use socket channels/rooms
 		socket.join(game.gameID);
 		// Notification to the client that created the game
 		socket.emit('active_games_changed');
