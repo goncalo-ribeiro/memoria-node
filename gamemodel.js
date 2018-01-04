@@ -110,6 +110,7 @@ class Game {
                 return 1;
             }
             this.secondPiece=index;
+            this.nextPlayer();
             return -1;
         }
     }

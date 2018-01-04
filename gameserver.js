@@ -91,7 +91,6 @@ io.on('connection', function (socket) {
         }else if(result === -1){//Match fail
             io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
             game.willHide=true;
-            game.nextPlayer();
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
