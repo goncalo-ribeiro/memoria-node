@@ -22,6 +22,14 @@ class Game {
         this.board = this.newBoard(this.linhas, this.colunas);
         this.willHide = false;
         this.totalHidden = 0;
+        this.created = this.formatDate(new Date());
+    }
+
+    formatDate(date){
+        let fill = function(value){
+            return value < 10 ? '0' + value : value;
+        }
+        return fill(date.getDay()) + '/' + fill((date.getMonth()+1)) + '/' + date.getFullYear() + ' ' + fill(date.getHours()) + ':' + fill(date.getMinutes()) + ':' + fill(date.getUTCSeconds());
     }
 
     newBoard(linhas, colunas){
@@ -39,43 +47,6 @@ class Game {
             temp.splice(random, 1);
         }
         return board;
-    }
-
-    hasRow(value){
-        return  ((this.board[0]==value) && (this.board[1]==value) && (this.board[2]==value)) || 
-                ((this.board[3]==value) && (this.board[4]==value) && (this.board[5]==value)) || 
-                ((this.board[6]==value) && (this.board[7]==value) && (this.board[8]==value)) || 
-                ((this.board[0]==value) && (this.board[3]==value) && (this.board[6]==value)) || 
-                ((this.board[1]==value) && (this.board[4]==value) && (this.board[7]==value)) || 
-                ((this.board[2]==value) && (this.board[5]==value) && (this.board[8]==value)) || 
-                ((this.board[0]==value) && (this.board[4]==value) && (this.board[8]==value)) || 
-                ((this.board[2]==value) && (this.board[4]==value) && (this.board[6]==value));
-    }  
-
-    checkGameEnded(){
-        if (this.hasRow(1)) {
-            this.winner = 1;
-            this.gameEnded = true;
-            return true;
-        } else if (this.hasRow(2)) {
-            this.winner = 2;
-            this.gameEnded = true;
-            return true;
-        } else if (this.isBoardComplete()) {
-            this.winner = 0;
-            this.gameEnded = true;
-            return true;
-        }
-        return false;
-    }
-
-    isBoardComplete(){
-        for (let value of this.board) {
-            if (value === 0) {
-                return false;
-            }
-        }
-        return true;
     }
 
     play(playerNumber, index){

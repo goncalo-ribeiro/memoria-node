@@ -41,11 +41,8 @@ io.on('connection', function (socket) {
     	console.log('A new game is about to be created');
         console.log(data);
     	let game = games.createGame(data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
-        // Use socket channels/rooms
 		socket.join(game.gameID);
-		// Notification to the client that created the game
 		socket.emit('my_active_games_changed');
-		// Notification to all clients
 		io.emit('lobby_changed');
     });
 
@@ -112,9 +109,5 @@ io.on('connection', function (socket) {
             socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
         }
     });
-
-
-
-    // ....
 
 });
