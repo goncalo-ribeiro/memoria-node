@@ -55,7 +55,13 @@ io.on('connection', function (socket) {
     });
 
     socket.on('get_active_games', function(data){
-        socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
+        let activeGamez = games.getConnectedGamesOf(socket.id);
+        socket.emit('active_games_changed', {activeGames: activeGamez} );
+        for(let i=0; i<activeGamez.length; i++){
+            if(activeGamez[i].willHide === true){
+                activeGamez[i].hidePieces();
+            }
+        }
     });
 
     socket.on('request_join_game', function(data){
@@ -64,22 +70,38 @@ io.on('connection', function (socket) {
         if (game.player2SocketID == 0) {
             games.joinGame(data.gameID, data.playerName, socket.id);
             socket.join(data.gameID);
-            io.to(data.gameID).emit('active_games_changed');    
+            io.to(data.gameID).emit('my_active_games_changed');    
             io.emit('lobby_changed');
             console.log('join request granted!');
         }
     });
 
     socket.on('play', function(data){
-        let game = games.gameByID(data.gameID);
-        let playerNumber = (socket.id == game.player1SocketID ? 1 : 2);
-        if (game.play(playerNumber, data.index)){
-            io.to(data.gameID).emit('active_games_changed');
+        let game = games.gameByID(data.id);
+        let playerNumber;
+        for(let i=0; i<game.players.length; i++){
+            if(game.players[i].socket == socket.id){
+                playerNumber=i+1;
+                break;
+            }
+        }
+        let result = game.play(playerNumber, data.index);
+        if (result === 1 || result === 0){//Piece Match or first move
+            io.to(data.gameID).emit('my_active_games_changed');
+            socket.emit('my_active_games_changed');
+            console.log("piece match or first move");
+        }else if(result === -1){//Match fail
+            console.log("match fail");
+            io.to(data.gameID).emit('my_active_games_changed');
+            socket.emit('my_active_games_changed');
+            game.willHide=true;
         }else{
-            if (game.gameStarted == false) {
+            if (game.gameStarted === false) {
+                console.log("game not started");
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
             }else{
-                if (game.gameEnded == false) {
+                if (game.gameEnded === false) {
+                    console.log("not player turn");
                     socket.emit('alert', {message : "It's not your turn jabroni!\nYou have to wait until the other player makes his play"});
                 }
             }

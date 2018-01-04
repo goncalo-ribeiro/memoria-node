@@ -16,7 +16,7 @@ class GameList {
     createGame(name, playerId, socketID, gameSize, linhas, colunas) {
     	this.contadorID = this.contadorID+1;
     	var game = new Game(this.contadorID, name, gameSize, linhas, colunas);
-    	game.players[game.players.length] = {id: playerId, socket: socketID};
+    	game.players[game.players.length] = {id: playerId, socket: socketID, score: 0};
     	this.games.set(game.gameID, game);
     	return game;
     }
@@ -26,7 +26,7 @@ class GameList {
     	if (game===null || game.players.length >= game.gameSize) {
     		return null;
     	}
-    	game.players[game.players.length] = {id: playerId, socket: socketID};
+    	game.players[game.players.length] = {id: playerId, socket: socketID, score: 0};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
         }
