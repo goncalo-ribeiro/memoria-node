@@ -87,9 +87,9 @@ io.on('connection', function (socket) {
         }
         let result = game.play(playerNumber, data.index);
         if (result === 1 || result === 0){//Piece Match or first move
-            io.emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
+            io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
         }else if(result === -1){//Match fail
-            io.emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
+            io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
             game.willHide=true;
             game.nextPlayer();
         }else{
