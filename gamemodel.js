@@ -21,6 +21,7 @@ class Game {
         this.secondPiece = null;
         this.board = this.newBoard(this.linhas, this.colunas);
         this.willHide = false;
+        this.totalHidden = 0;
     }
 
     newBoard(linhas, colunas){
@@ -114,12 +115,15 @@ class Game {
     }
 
     hidePieces(){
-        this.board[this.firstPiece].show=false;
-        this.board[this.secondPiece].show=false;
-        this.firstPiece=null;
-        this.secondPiece=null;
-        this.willHide=false;
-        this.nextPlayer();
+        this.totalHidden++
+        if(this.totalHidden == this.gameSize){
+            this.board[this.firstPiece].show=false;
+            this.board[this.secondPiece].show=false;
+            this.firstPiece=null;
+            this.secondPiece=null;
+            this.willHide=false;
+            this.totalHidden=0;
+        }
     }
 
     nextPlayer(){
@@ -148,7 +152,7 @@ class Game {
         }
         for(let i=0; i<this.players.length; i++){
             if(this.players[i].score == max){
-                players.push(this.players[i].id);
+                players.push(this.players[i].name);
             }
         }
         if(players.length > 1){

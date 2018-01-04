@@ -40,7 +40,7 @@ io.on('connection', function (socket) {
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
         console.log(data);
-    	let game = games.createGame(data.name, data.playerId, socket.id, data.size, data.linhas, data.colunas);
+    	let game = games.createGame(data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
         // Use socket channels/rooms
 		socket.join(game.gameID);
 		// Notification to the client that created the game
@@ -64,13 +64,13 @@ io.on('connection', function (socket) {
         }
     });
 
-    socket.on('request_join_game', function(data){
-        let game = games.gameByID(data.gameID);
-        console.log('A join request has been made on the game: ' + data.gameID + ' by: ' + data.playerName);
-        if (game.player2SocketID == 0) {
-            games.joinGame(data.gameID, data.playerName, socket.id);
-            socket.join(data.gameID);
-            io.to(data.gameID).emit('my_active_games_changed');    
+    socket.on('join_game', function(data){
+        let game = games.gameByID(data.gameId);
+        console.log('A join request has been made on the game: ' + data.gameId + ' by: ' + data.playerName);
+        if (game !== null && game.players.length < game.gameSize) {
+            games.joinGame(data.gameId, data.playerId, data.playerName, socket.id);
+            socket.join(data.gameId);
+            io.to(data.gameId).emit('my_active_games_changed');    
             io.emit('lobby_changed');
             console.log('join request granted!');
         }
@@ -87,21 +87,16 @@ io.on('connection', function (socket) {
         }
         let result = game.play(playerNumber, data.index);
         if (result === 1 || result === 0){//Piece Match or first move
-            io.to(data.gameID).emit('my_active_games_changed');
-            socket.emit('my_active_games_changed');
-            console.log("piece match or first move");
+            io.emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
         }else if(result === -1){//Match fail
-            console.log("match fail");
-            io.to(data.gameID).emit('my_active_games_changed');
-            socket.emit('my_active_games_changed');
+            io.emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
             game.willHide=true;
+            game.nextPlayer();
         }else{
-            if (game.gameStarted === false) {
-                console.log("game not started");
+            if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
             }else{
                 if (game.gameEnded === false) {
-                    console.log("not player turn");
                     socket.emit('alert', {message : "It's not your turn jabroni!\nYou have to wait until the other player makes his play"});
                 }
             }
@@ -109,11 +104,11 @@ io.on('connection', function (socket) {
     });
 
     socket.on('close', function(data){
-        let game = games.gameByID(data.gameID);
+        let game = games.gameByID(data.id);
         if (game.gameEnded) {
-            games.removeGame(data.gameID, socket.id);
+            games.removeGame(data.id, socket.id);
             console.log('socket ' + socket.id + ' removed from game!');
-            socket.leave(data.gameID);
+            socket.leave(data.id);
             console.log('socket ' + socket.id + ' left room!');
             socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
         }

@@ -13,20 +13,17 @@ class GameList {
     	return game;
     }
 
-    createGame(name, playerId, socketID, gameSize, linhas, colunas) {
+    createGame(name, playerId, playerName, socketID, gameSize, linhas, colunas) {
     	this.contadorID = this.contadorID+1;
     	var game = new Game(this.contadorID, name, gameSize, linhas, colunas);
-    	game.players[game.players.length] = {id: playerId, socket: socketID, score: 0};
+    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0};
     	this.games.set(game.gameID, game);
     	return game;
     }
 
-    joinGame(gameID, playerId, socketID) {
+    joinGame(gameID, playerId, playerName, socketID) {
     	let game = this.gameByID(gameID);
-    	if (game===null || game.players.length >= game.gameSize) {
-    		return null;
-    	}
-    	game.players[game.players.length] = {id: playerId, socket: socketID, score: 0};
+    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
         }
@@ -38,14 +35,18 @@ class GameList {
     	if (game===null) {
     		return null;
     	}
-    	if (game.player1SocketID == socketID) {
-    		game.player1SocketID = "";
-    	} else if (game.player2SocketID == socketID) {
-    		game.player2SocketID = "";
-    	} 
-    	if ((game.player1SocketID === "") && (game.player2SocketID === "")) {
-    		this.games.delete(gameID);
-    	}
+        for(let i=0; i<game.players.length; i++){
+            if (game.players[i].socket == socketID) {
+                game.players[i].socket = "";
+            }
+        }
+        for(let i=0; i<game.players.length; i++){
+            if (game.players[i].socket != "") {
+                return game;
+            }
+        }
+    	
+    	this.games.delete(gameID);
     	return game;
     }
 
@@ -64,13 +65,18 @@ class GameList {
 
     getLobbyGamesOf(socketID) {
     	let games = [];
+        let toReturn = true;
     	for (var [key, value] of this.games) {
+            toReturn = true;
     		if ((!value.gameStarted) && (!value.gameEnded))  {
                 for(let i = 0; i < value.players.length ; i++){
-                    if(value.players[i].socket == socketID){
-                        games.push(value);
+                    if(value.players[i].socket === socketID){
+                        toReturn=false;
                         break;
                     }
+                }
+                if(toReturn){
+                    games.push(value);
                 }
     		}
 		}
