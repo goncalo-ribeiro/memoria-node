@@ -14,15 +14,17 @@ class Game {
             this.linhas=gameSize > 3 ? 6 : 4;
             this.colunas=gameSize > 2 ? 6 : 4;
         }
-        this.players=[];
+        this.players = [];
         this.playerTurn = 1;
+        this.tempTurn = 0;
         this.winner = 0;
         this.firstPiece = null;
         this.secondPiece = null;
         this.board = this.newBoard(this.linhas, this.colunas);
-        this.willHide = false;
-        this.totalHidden = 0;
         this.created = this.formatDate(new Date());
+        this.timeout=null;
+        this.firstMax='';
+        this.currMax=-1;
     }
 
     formatDate(date){
@@ -66,36 +68,40 @@ class Game {
     }
 
     revealPiece(index){
+        if(this.timeout===null){
+            //this.timeout=setTimeout(this.kickPlayer, 30000);
+        }
         this.board[index].show=true;
         if(this.firstPiece===null){
             this.firstPiece=index;
             return 0;
         }else{
+            //clearTimeout(this.timeout);
+            //this.timeout=setTimeout(this.kickPlayer, 30000);
             if(this.board[this.firstPiece].piece === this.board[index].piece){
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
-                if(this.noMorePieces()){
+                this.calcMax();
+                if(this.noMorePieces() || (this.players.length === 1 && this.gameSize !== 1)){
                     this.gameEnded=true;
-                    this.winner=this.highScore();
+                    this.winner=this.firstMax;
                 }
                 return 1;
             }
             this.secondPiece=index;
-            this.nextPlayer();
+            this.tempTurn=this.playerTurn;
+            this.playerTurn=0;
             return -1;
         }
     }
 
     hidePieces(){
-        this.totalHidden++
-        if(this.totalHidden == this.gameSize){
-            this.board[this.firstPiece].show=false;
-            this.board[this.secondPiece].show=false;
-            this.firstPiece=null;
-            this.secondPiece=null;
-            this.willHide=false;
-            this.totalHidden=0;
-        }
+        this.board[this.firstPiece].show=false;
+        this.board[this.secondPiece].show=false;
+        this.firstPiece=null;
+        this.secondPiece=null;
+        this.playerTurn=this.tempTurn;
+        this.nextPlayer();
     }
 
     nextPlayer(){
@@ -114,32 +120,20 @@ class Game {
         return true;
     }
 
-    highScore(){
-        let max=0;
-        let players=[];
+    calcMax(){
         for(let i=0; i<this.players.length; i++){
-            if(this.players[i].score > max){
-                max=this.players[i].score;
-            } 
-        }
-        for(let i=0; i<this.players.length; i++){
-            if(this.players[i].score == max){
-                players.push(this.players[i].name);
+            if(this.currMax < this.players[i].score){
+                this.currMax=this.players[i].score;
+                this.firstMax=this.players[i].name;
             }
         }
-        if(players.length > 1){
-            let string='Tie between '
-            for(let i=0; i<players.length; i++){
-                string+=players[i];
-                if(i !== players.length-1){
-                    string += ' and ';
-                }else{
-                    string += '!';
-                }
-            }
-            return string;
-        }
-        return players[0];
+    }
+
+    kickPlayer(){
+        console.log('Kicking ' + this.players[this.playerTurn-1].name);
+        clearTimeout(this.timeout);
+        this.timeout = setTimeout(this.kickPlayer, 30000);
+        this.nextPlayer();
     }
 
 

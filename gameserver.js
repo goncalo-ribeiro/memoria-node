@@ -52,13 +52,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('get_active_games', function(data){
-        let activeGamez = games.getConnectedGamesOf(socket.id);
-        socket.emit('active_games_changed', {activeGames: activeGamez} );
-        for(let i=0; i<activeGamez.length; i++){
-            if(activeGamez[i].willHide === true){
-                activeGamez[i].hidePieces();
-            }
-        }
+        socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
     });
 
     socket.on('join_game', function(data){
@@ -87,7 +81,8 @@ io.on('connection', function (socket) {
             io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
         }else if(result === -1){//Match fail
             io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
-            game.willHide=true;
+            setTimeout(function(){ game.hidePieces() }, 1000);
+            setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
