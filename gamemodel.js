@@ -76,7 +76,7 @@ class Game {
             this.firstPiece=index;
             return 0;
         }else{
-            this.lastPlay=this.lastPlay=new Date().getTime();
+            this.lastPlay=new Date().getTime();
             if(this.board[this.firstPiece].piece === this.board[index].piece){
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
@@ -122,9 +122,21 @@ class Game {
         return true;
     }
 
-    kickPlayer(){
-        console.log('Kicking ' + this.players[this.playerTurn-1].name);
-        this.nextPlayer();
+    kickPlayer(player){
+        let kick = false;
+        let key = -1;
+        for(key in this.players){
+            if(this.players[key].id === player.id && this.players[key].name === player.name
+                && this.players[key].socket === player.socket){
+                kick=true;
+                break;
+            }
+        }
+        if (kick) {
+            this.players.splice(key, 1);
+            this.nextPlayer();
+            this.lastPlay=new Date().getTime();
+        }
     }
 
 

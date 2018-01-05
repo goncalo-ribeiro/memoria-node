@@ -31,10 +31,6 @@ app.listen(8080, function(){
 // ------------------------
 
 let games = new GameList();
-let timeouts = {};
-
-//games.createGame(1,1,4,8,10);
-//games.joinGame(1,2,2);
 
 io.on('connection', function (socket) {
     console.log('client has connected');
@@ -69,10 +65,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('play', function(data){
-        if(timeouts[data.id] === undefined){
-            console.log("creating timeout");
-            timeouts[data.id] = setTimeout(function(){console.log("KICK");}, 3000);
-        }
         let game = games.gameByID(data.id);
         let playerNumber;
         for(let i=0; i<game.players.length; i++){
@@ -83,15 +75,11 @@ io.on('connection', function (socket) {
         }
         let result = game.play(playerNumber, data.index);
         if (result === 1 || result === 0){//Piece Match or first move
-            clearTimeout(timeouts[data.id]);
             io.to(data.id).emit('my_active_games_changed');
-            timeouts[data.id] = setTimeout(function(){games.gameByID(data.id).kickPlayer}, 30000);
         }else if(result === -1){//Match fail
-            clearTimeout(timeouts[data.id]);
             io.to(data.id).emit('my_active_games_changed');
             setTimeout(function(){ game.hidePieces() }, 1000);
             setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
-            timeouts[data.id] = setTimeout(function(){games.gameByID(data.id).kickPlayer}, 30000);
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
@@ -99,6 +87,24 @@ io.on('connection', function (socket) {
                 if (game.gameEnded === false) {
                     socket.emit('alert', {message : "It's not your turn jabroni!\nYou have to wait until the other player makes his play"});
                 }
+            }
+        }
+    });
+
+    socket.on('kick_player', function(data){
+            if(data.player !== undefined){
+            let game = games.gameByID(data.gameId);
+            let kick = false;
+            for(let key in game.players){
+                if(game.players[key].id === data.player.id && game.players[key].name === data.player.name
+                    && game.players[key].socket === data.player.socket){
+                    kick=true;
+                    break;
+                }
+            }
+            if (kick) {
+                game.kickPlayer(data.player);
+                io.to(data.gameId).emit('my_active_games_changed');
             }
         }
     });
