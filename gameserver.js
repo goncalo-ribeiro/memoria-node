@@ -31,6 +31,8 @@ app.listen(8080, function(){
 // ------------------------
 
 let games = new GameList();
+let timeouts = {};
+
 //games.createGame(1,1,4,8,10);
 //games.joinGame(1,2,2);
 
@@ -39,7 +41,6 @@ io.on('connection', function (socket) {
 
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
-        console.log(data);
     	let game = games.createGame(data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
 		socket.join(game.gameID);
 		socket.emit('my_active_games_changed');
@@ -68,6 +69,10 @@ io.on('connection', function (socket) {
     });
 
     socket.on('play', function(data){
+        if(timeouts[data.id] === undefined){
+            console.log("creating timeout");
+            timeouts[data.id] = setTimeout(function(){console.log("KICK");}, 3000);
+        }
         let game = games.gameByID(data.id);
         let playerNumber;
         for(let i=0; i<game.players.length; i++){
@@ -78,11 +83,15 @@ io.on('connection', function (socket) {
         }
         let result = game.play(playerNumber, data.index);
         if (result === 1 || result === 0){//Piece Match or first move
-            io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
+            clearTimeout(timeouts[data.id]);
+            io.to(data.id).emit('my_active_games_changed');
+            timeouts[data.id] = setTimeout(function(){games.gameByID(data.id).kickPlayer}, 30000);
         }else if(result === -1){//Match fail
-            io.to(data.id).emit('my_active_games_changed'); //Ta a enviar a todos os jogos, refazer o to!!!
+            clearTimeout(timeouts[data.id]);
+            io.to(data.id).emit('my_active_games_changed');
             setTimeout(function(){ game.hidePieces() }, 1000);
             setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
+            timeouts[data.id] = setTimeout(function(){games.gameByID(data.id).kickPlayer}, 30000);
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});

@@ -22,9 +22,9 @@ class Game {
         this.secondPiece = null;
         this.board = this.newBoard(this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
-        this.timeout=null;
         this.firstMax='';
         this.currMax=-1;
+        this.lastPlay=null;
     }
 
     formatDate(date){
@@ -68,20 +68,22 @@ class Game {
     }
 
     revealPiece(index){
-        if(this.timeout===null){
-            //this.timeout=setTimeout(this.kickPlayer, 30000);
+        if(this.lastPlay===null){
+            this.lastPlay=new Date().getTime();
         }
         this.board[index].show=true;
         if(this.firstPiece===null){
             this.firstPiece=index;
             return 0;
         }else{
-            //clearTimeout(this.timeout);
-            //this.timeout=setTimeout(this.kickPlayer, 30000);
+            this.lastPlay=this.lastPlay=new Date().getTime();
             if(this.board[this.firstPiece].piece === this.board[index].piece){
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
-                this.calcMax();
+                if(this.players[this.playerTurn-1].score > this.currMax){
+                    this.currMax=this.players[this.playerTurn-1].score;
+                    this.firstMax=this.players[this.playerTurn-1].name;
+                }
                 if(this.noMorePieces() || (this.players.length === 1 && this.gameSize !== 1)){
                     this.gameEnded=true;
                     this.winner=this.firstMax;
@@ -120,19 +122,8 @@ class Game {
         return true;
     }
 
-    calcMax(){
-        for(let i=0; i<this.players.length; i++){
-            if(this.currMax < this.players[i].score){
-                this.currMax=this.players[i].score;
-                this.firstMax=this.players[i].name;
-            }
-        }
-    }
-
     kickPlayer(){
         console.log('Kicking ' + this.players[this.playerTurn-1].name);
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(this.kickPlayer, 30000);
         this.nextPlayer();
     }
 
