@@ -108,7 +108,7 @@ class Game {
 
     nextPlayer(){
         this.playerTurn++;
-        if(this.playerTurn > this.gameSize){
+        if(this.playerTurn > this.players.length){
             this.playerTurn=1;
         }
     }
@@ -134,6 +134,11 @@ class Game {
         }
         if (kick) {
             this.players.splice(key, 1);
+            this.playerTurn--;
+            if(this.players.length==1){
+                this.gameEnded=true;
+                this.winner=this.players[0].name;
+            }
             this.nextPlayer();
             this.lastPlay=new Date().getTime();
         }
