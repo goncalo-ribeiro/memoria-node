@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 var Game = require('./gamemodel.js');
+var GameProxy = require('./gameproxy.js');
 
 class GameList {
 	constructor() {
@@ -16,14 +17,14 @@ class GameList {
     createGame(name, playerId, playerName, socketID, gameSize, linhas, colunas) {
     	this.contadorID = this.contadorID+1;
     	var game = new Game(this.contadorID, name, gameSize, linhas, colunas);
-    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0};
+    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0, bot: false, botType: null};
     	this.games.set(game.gameID, game);
     	return game;
     }
 
     joinGame(gameID, playerId, playerName, socketID) {
     	let game = this.gameByID(gameID);
-    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0};
+    	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0, bot: false, botType: null};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
         }
@@ -55,7 +56,7 @@ class GameList {
     	for (var [key, value] of this.games) {
 		    for(let i = 0; i < value.players.length ; i++){
                 if(value.players[i].socket == socketID){
-                    games.push(value);
+                    games.push(new GameProxy(value));
                     break;
                 }
             }

@@ -20,6 +20,7 @@ class Game {
         this.winner = 0;
         this.firstPiece = null;
         this.secondPiece = null;
+        this.availablePieces=[];
         this.board = this.newBoard(this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
         this.firstMax='';
@@ -47,6 +48,7 @@ class Game {
             random = Math.round(Math.random()*(temp.length-1));
             board[i]={show: false, piece: temp[random]};
             temp.splice(random, 1);
+            this.availablePieces.push(i);
         }
         return board;
     }
@@ -78,6 +80,18 @@ class Game {
         }else{
             this.lastPlay=new Date().getTime();
             if(this.board[this.firstPiece].piece === this.board[index].piece){
+                for(let i=0; i<this.availablePieces.length; i++){
+                    if(this.availablePieces[i] === this.firstPiece){
+                        this.availablePieces.splice(i, 1);
+                        break;
+                    }
+                }
+                for(let i=0; i<this.availablePieces.length; i++){
+                    if(this.availablePieces[i] === index){
+                        this.availablePieces.splice(i, 1);
+                        break;
+                    }
+                }
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
                 if(this.players[this.playerTurn-1].score > this.currMax){
@@ -141,6 +155,49 @@ class Game {
             }
             this.nextPlayer();
             this.lastPlay=new Date().getTime();
+        }
+    }
+
+    addBot(bot){
+        switch(+bot){
+            case 1: this.players[this.players.length]={id: '', name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: 1};
+            break;
+            case 2: this.players[this.players.length]={id: '', name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: 2};
+            break;
+            case 3: this.players[this.players.length]={id: '', name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: 3};
+            break;
+        }
+        if(this.players.length == this.gameSize){
+            this.gameStarted=true;
+        }
+    }
+
+    botPlay(){
+        switch(this.players[this.playerTurn-1].botType){
+            case 1: return this.dumbBot();
+            break;
+            case 2: return this.dumbBot();
+            break;
+            case 3: return this.dumbBot();
+            break;
+        }
+    }
+
+    dumbBot(){
+        let random = Math.round(Math.random()*(this.availablePieces.length-1));
+        this.revealPiece(this.availablePieces[random]);
+        this.firstPiece=this.availablePieces[random];
+        let secondRandom = random;
+        while(random === secondRandom){
+            secondRandom = Math.round(Math.random()*(this.availablePieces.length-1));
+        }
+        this.secondPiece=this.availablePieces[secondRandom];
+        if(this.revealPiece(this.availablePieces[secondRandom]) == 1){
+            return !this.gameEnded;
+        }else{
+            this.firstPiece=this.availablePieces[random];
+            this.secondPiece=this.availablePieces[secondRandom];
+            return false;
         }
     }
 

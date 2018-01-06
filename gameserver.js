@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
     socket.on('join_game', function(data){
         let game = games.gameByID(data.gameId);
         console.log('A join request has been made on the game: ' + data.gameId + ' by: ' + data.playerName);
-        if (game !== null && game.players.length < game.gameSize) {
+        if (game !== null && game.players.length < game.gameSize && !game.gameStarted) {
             games.joinGame(data.gameId, data.playerId, data.playerName, socket.id);
             socket.join(data.gameId);
             io.to(data.gameId).emit('my_active_games_changed');    
@@ -80,6 +80,18 @@ io.on('connection', function (socket) {
             io.to(data.id).emit('my_active_games_changed');
             setTimeout(function(){ game.hidePieces() }, 1000);
             setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
+            setTimeout(function(){ if(game.players[(game.playerTurn-1)].bot){
+                let botResult=false;
+                do{
+                    botResult=game.botPlay();
+                    io.to(data.id).emit('my_active_games_changed');
+                    if(botResult==false && !game.gameEnded){
+                        setTimeout(function(){ game.hidePieces() }, 1000);
+                        setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
+                    }
+                }while(botResult);
+            } }, 1000);
+            
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
@@ -120,4 +132,12 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('add_bot', function(data){
+        let game = games.gameByID(data.id);
+        if (game !== null && game.players.length < game.gameSize && !game.gameStarted) {
+            game.addBot(data.bot);
+            io.to(data.id).emit('my_active_games_changed');    
+            io.emit('lobby_changed');
+        }
+    });
 });
