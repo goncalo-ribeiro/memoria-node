@@ -21,6 +21,8 @@ class Game {
         this.firstPiece = null;
         this.secondPiece = null;
         this.availablePieces=[];
+        this.knownPieces={};
+        this.hiddenPieces=[];
         this.board = this.newBoard(this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
         this.firstMax='';
@@ -49,6 +51,7 @@ class Game {
             board[i]={show: false, piece: temp[random]};
             temp.splice(random, 1);
             this.availablePieces.push(i);
+            this.hiddenPieces.push(i);
         }
         return board;
     }
@@ -74,12 +77,23 @@ class Game {
             this.lastPlay=new Date().getTime();
         }
         this.board[index].show=true;
+        if(this.knownPieces[index]===undefined){
+            this.knownPieces[index]=this.board[index].piece;
+        }
+        for(let i=0; i<this.hiddenPieces.length; i++){
+            if(this.hiddenPieces[i] === index){
+                this.hiddenPieces.splice(i, 1);
+                break;
+            }
+        }
         if(this.firstPiece===null){
             this.firstPiece=index;
             return 0;
         }else{
             this.lastPlay=new Date().getTime();
             if(this.board[this.firstPiece].piece === this.board[index].piece){
+                delete this.knownPieces[this.fistPiece];
+                delete this.knownPieces[index];
                 for(let i=0; i<this.availablePieces.length; i++){
                     if(this.availablePieces[i] === this.firstPiece){
                         this.availablePieces.splice(i, 1);
@@ -176,9 +190,9 @@ class Game {
         switch(this.players[this.playerTurn-1].botType){
             case 1: return this.dumbBot();
             break;
-            case 2: return this.dumbBot();
+            case 2: return this.mediumBot();
             break;
-            case 3: return this.dumbBot();
+            case 3: return this.smartBot();
             break;
         }
     }
@@ -186,21 +200,83 @@ class Game {
     dumbBot(){
         let random = Math.round(Math.random()*(this.availablePieces.length-1));
         this.revealPiece(this.availablePieces[random]);
-        this.firstPiece=this.availablePieces[random];
         let secondRandom = random;
         while(random === secondRandom){
             secondRandom = Math.round(Math.random()*(this.availablePieces.length-1));
         }
-        this.secondPiece=this.availablePieces[secondRandom];
-        if(this.revealPiece(this.availablePieces[secondRandom]) == 1){
+        if(this.revealPiece(this.availablePieces[secondRandom]) === 1){
             return !this.gameEnded;
+        }
+        return false;
+    }
+
+    mediumBot(){
+        if(Math.round(Math.random())){
+            this.dumbBot();
         }else{
-            this.firstPiece=this.availablePieces[random];
-            this.secondPiece=this.availablePieces[secondRandom];
-            return false;
+            this.smartBot();
         }
     }
 
+    smartBot(){
+        let piece = this.knowsPair();
+        if(piece !== null){
+            let firstPiece;
+            let secondPiece;
+            for(let key in this.knownPieces){
+                if(this.knownPieces[key] == piece){
+                    firstPiece=key;
+                    break;
+                }
+            }
+            for(let key in this.knownPieces){
+                if(this.knownPieces[key] == piece && firstPiece !== key){
+                    secondPiece=key;
+                    break;
+                }
+            }
+            console.log(this.revealPiece(firstPiece));
+            console.log(this.revealPiece(secondPiece));
+            console.log("check 1");
+            return !this.gameEnded;
+        }
+        let random = Math.round(Math.random()*(this.hiddenPieces.length-1));
+        let newPiece = this.board[this.hiddenPieces[random]].piece;
+        console.log(this.revealPiece(this.hiddenPieces[random]));
+        if(this.knowsPair() !== null){
+            for(let key in this.knownPieces){
+                if(this.knownPieces[key] == newPiece){
+                    piece=key;
+                    break;
+                }
+            }
+            console.log(this.revealPiece(piece));
+            console.log("check 2");
+            return !this.gameEnded;
+        }
+        random = Math.round(Math.random()*(this.hiddenPieces.length-1));
+        if(this.revealPiece(this.hiddenPieces[random]) === 1){
+            console.log("check 3");
+            return !this.gameEnded;
+        }
+        return false;
+    }
+
+    knowsPair(){
+        let known={};
+        for(let key in this.knownPieces){
+            if(known[this.knownPieces[key]] === undefined){
+                known[this.knownPieces[key]]=0;
+            }
+            known[this.knownPieces[key]]++;
+        }
+        for(let piece in known){
+            if(known[piece] === 2){
+                return piece;
+            }
+        }
+        return null;
+    }
 
 }
 

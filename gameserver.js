@@ -85,7 +85,7 @@ io.on('connection', function (socket) {
                 do{
                     botResult=game.botPlay();
                     io.to(data.id).emit('my_active_games_changed');
-                    if(botResult==false && !game.gameEnded){
+                    if(botResult===false && !game.gameEnded){
                         setTimeout(function(){ game.hidePieces() }, 1000);
                         setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
                     }
@@ -106,17 +106,19 @@ io.on('connection', function (socket) {
     socket.on('kick_player', function(data){
             if(data.player !== undefined){
             let game = games.gameByID(data.gameId);
-            let kick = false;
-            for(let key in game.players){
-                if(game.players[key].id === data.player.id && game.players[key].name === data.player.name
-                    && game.players[key].socket === data.player.socket){
-                    kick=true;
-                    break;
+            if(game != null){
+                let kick = false;
+                for(let key in game.players){
+                    if(game.players[key].id === data.player.id && game.players[key].name === data.player.name
+                        && game.players[key].socket === data.player.socket){
+                        kick=true;
+                        break;
+                    }
                 }
-            }
-            if (kick) {
-                game.kickPlayer(data.player);
-                io.to(data.gameId).emit('my_active_games_changed');
+                if (kick) {
+                    game.kickPlayer(data.player);
+                    io.to(data.gameId).emit('my_active_games_changed');
+                }
             }
         }
     });
