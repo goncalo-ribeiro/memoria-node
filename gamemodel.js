@@ -73,6 +73,7 @@ class Game {
     }
 
     revealPiece(index){
+        console.log(this.hiddenPieces);
         if(this.lastPlay===null){
             this.lastPlay=new Date().getTime();
         }
@@ -82,6 +83,7 @@ class Game {
         }
         for(let i=0; i<this.hiddenPieces.length; i++){
             if(this.hiddenPieces[i] === index){
+                console.log("splice");
                 this.hiddenPieces.splice(i, 1);
                 break;
             }
@@ -235,14 +237,14 @@ class Game {
                     break;
                 }
             }
-            console.log(this.revealPiece(firstPiece));
-            console.log(this.revealPiece(secondPiece));
+            this.revealPiece(firstPiece);
+            his.revealPiece(secondPiece);
             console.log("check 1");
             return !this.gameEnded;
         }
         let random = Math.round(Math.random()*(this.hiddenPieces.length-1));
         let newPiece = this.board[this.hiddenPieces[random]].piece;
-        console.log(this.revealPiece(this.hiddenPieces[random]));
+        console.log("Play 3: " + this.revealPiece(this.hiddenPieces[random]));
         if(this.knowsPair() !== null){
             for(let key in this.knownPieces){
                 if(this.knownPieces[key] == newPiece){
@@ -250,12 +252,14 @@ class Game {
                     break;
                 }
             }
-            console.log(this.revealPiece(piece));
+            console.log("Play 4: " + this.revealPiece(piece));
             console.log("check 2");
             return !this.gameEnded;
         }
         random = Math.round(Math.random()*(this.hiddenPieces.length-1));
-        if(this.revealPiece(this.hiddenPieces[random]) === 1){
+        let reveal = this.revealPiece(this.hiddenPieces[random]);
+        console.log("Play 5: " + reveal);
+        if( reveal === 1){
             console.log("check 3");
             return !this.gameEnded;
         }
