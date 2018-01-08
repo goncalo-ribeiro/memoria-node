@@ -113,7 +113,6 @@ class Game {
                     this.firstMax=this.players[this.playerTurn-1].name;
                 }
                 if(this.noMorePieces() || (this.players.length === 1 && this.gameSize !== 1)){
-                    console.log("end");
                     this.gameEnded=true;
                     this.winner=this.firstMax;
                 }
@@ -213,9 +212,9 @@ class Game {
 
     mediumBot(){
         if(Math.round(Math.random())){
-            this.dumbBot();
+            return this.dumbBot();
         }else{
-            this.smartBot();
+            return this.smartBot();
         }
     }
 
@@ -240,12 +239,12 @@ class Game {
             this.revealPiece(secondPiece);
             return !this.gameEnded;
         }
-        let random = Math.round(Math.random()*(this.hiddenPieces.length-1));
-        let newPiece = this.board[this.hiddenPieces[random]].piece;
-        this.revealPiece(this.hiddenPieces[random]);
+        let random = this.hiddenPieces[Math.round(Math.random()*(this.hiddenPieces.length-1))];
+        let newPiece = this.board[random].piece;
+        this.revealPiece(random);
         if(this.knowsPair() !== null){
             for(let key in this.knownPieces){
-                if(this.knownPieces[key] == newPiece && key != this.hiddenPieces[random]){
+                if(this.knownPieces[key] == newPiece && key != random){
                     piece=key;
                     break;
                 }
@@ -253,7 +252,8 @@ class Game {
             this.revealPiece(piece);
             return !this.gameEnded;
         }
-        if(this.revealPiece(this.hiddenPieces[Math.round(Math.random()*(this.hiddenPieces.length-1))]) === 1){
+        random = this.hiddenPieces[Math.round(Math.random()*(this.hiddenPieces.length-1))]
+        if(this.revealPiece(random) === 1){
             return !this.gameEnded;
         }
         return false;
