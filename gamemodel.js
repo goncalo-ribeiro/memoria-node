@@ -113,6 +113,7 @@ class Game {
                     this.firstMax=this.players[this.playerTurn-1].name;
                 }
                 if(this.noMorePieces() || (this.players.length === 1 && this.gameSize !== 1)){
+                    console.log("end");
                     this.gameEnded=true;
                     this.winner=this.firstMax;
                 }
@@ -235,28 +236,24 @@ class Game {
                     break;
                 }
             }
-            console.log(this.revealPiece(firstPiece));
-            console.log(this.revealPiece(secondPiece));
-            console.log("check 1");
+            this.revealPiece(firstPiece);
+            this.revealPiece(secondPiece);
             return !this.gameEnded;
         }
         let random = Math.round(Math.random()*(this.hiddenPieces.length-1));
         let newPiece = this.board[this.hiddenPieces[random]].piece;
-        console.log(this.revealPiece(this.hiddenPieces[random]));
+        this.revealPiece(this.hiddenPieces[random]);
         if(this.knowsPair() !== null){
             for(let key in this.knownPieces){
-                if(this.knownPieces[key] == newPiece){
+                if(this.knownPieces[key] == newPiece && key != this.hiddenPieces[random]){
                     piece=key;
                     break;
                 }
             }
-            console.log(this.revealPiece(piece));
-            console.log("check 2");
+            this.revealPiece(piece);
             return !this.gameEnded;
         }
-        random = Math.round(Math.random()*(this.hiddenPieces.length-1));
-        if(this.revealPiece(this.hiddenPieces[random]) === 1){
-            console.log("check 3");
+        if(this.revealPiece(this.hiddenPieces[Math.round(Math.random()*(this.hiddenPieces.length-1))]) === 1){
             return !this.gameEnded;
         }
         return false;
