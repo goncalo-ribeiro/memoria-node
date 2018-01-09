@@ -173,13 +173,12 @@ class Game {
     }
 
     addBot(bot){
-        switch(+bot){
-            case 1: this.players[this.players.length]={id: '', name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: 1};
-            break;
-            case 2: this.players[this.players.length]={id: '', name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: 2};
-            break;
-            case 3: this.players[this.players.length]={id: '', name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: 3};
-            break;
+        if(bot <= 0.33){
+            this.players[this.players.length]={id: '', name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
+        }else if(bot <= 0.67){
+            this.players[this.players.length]={id: '', name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: bot};
+        }else{
+            this.players[this.players.length]={id: '', name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: bot};
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;
@@ -187,13 +186,10 @@ class Game {
     }
 
     botPlay(){
-        switch(this.players[this.playerTurn-1].botType){
-            case 1: return this.dumbBot();
-            break;
-            case 2: return this.mediumBot();
-            break;
-            case 3: return this.smartBot();
-            break;
+        if(Math.round(Math.random()) < this.players[this.playerTurn-1].botType){
+            return this.dumbBot();
+        }else{
+            return this.smartBot();
         }
     }
 
@@ -208,14 +204,6 @@ class Game {
             return !this.gameEnded;
         }
         return false;
-    }
-
-    mediumBot(){
-        if(Math.round(Math.random())){
-            return this.dumbBot();
-        }else{
-            return this.smartBot();
-        }
     }
 
     smartBot(){
