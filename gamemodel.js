@@ -95,13 +95,13 @@ class Game {
                 delete this.knownPieces[this.fistPiece];
                 delete this.knownPieces[index];
                 for(let i=0; i<this.availablePieces.length; i++){
-                    if(this.availablePieces[i] === this.firstPiece){
+                    if(this.availablePieces[i] == this.firstPiece){
                         this.availablePieces.splice(i, 1);
                         break;
                     }
                 }
                 for(let i=0; i<this.availablePieces.length; i++){
-                    if(this.availablePieces[i] === index){
+                    if(this.availablePieces[i] == index){
                         this.availablePieces.splice(i, 1);
                         break;
                     }
