@@ -34,7 +34,7 @@ class Game {
         let fill = function(value){
             return value < 10 ? '0' + value : value;
         }
-        return fill(date.getDay()) + '/' + fill((date.getMonth()+1)) + '/' + date.getFullYear() + ' ' + fill(date.getHours()) + ':' + fill(date.getMinutes()) + ':' + fill(date.getUTCSeconds());
+        return fill(date.getHours()) + ':' + fill(date.getMinutes()) + ':' + fill(date.getSeconds());
     }
 
     newBoard(linhas, colunas){
