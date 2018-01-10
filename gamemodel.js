@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 class Game {
-    constructor(ID, name, gameSize, linhas, colunas) {
+    constructor(ID, pieces, name, gameSize, linhas, colunas) {
         this.gameID = ID;
         this.name = name;
         this.gameEnded = false;
@@ -23,7 +23,7 @@ class Game {
         this.availablePieces=[];
         this.knownPieces={};
         this.hiddenPieces=[];
-        this.board = this.newBoard(this.linhas, this.colunas);
+        this.board = this.newBoard(pieces, this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
         this.firstMax='';
         this.currMax=-1;
@@ -37,15 +37,23 @@ class Game {
         return fill(date.getHours()) + ':' + fill(date.getMinutes()) + ':' + fill(date.getSeconds());
     }
 
-    newBoard(linhas, colunas){
+    newBoard(pieces, linhas, colunas){
+        let all=[];
+        for(let i=0; i<pieces.length; i++){
+            if(pieces[i].active){
+                all[all.length]=pieces[i].path.split('.')[0];
+            }
+        }
         const total = linhas*colunas;
         let temp=[];
-        let board=[];
-        for(let i = 0; i < total; i+=2){
-            temp[i]=i/2;
-            temp[i+1]=i/2;
-        }
         let random;
+        for(let i = 0; i < total; i+=2){
+            random = Math.round(Math.random()*(all.length-1));
+            temp[i]=all[random];
+            temp[i+1]=all[random];
+            all.splice(random, 1);
+        }
+        let board=[];
         for(let i = 0; i < total; i++){
             random = Math.round(Math.random()*(temp.length-1));
             board[i]={show: false, piece: temp[random]};

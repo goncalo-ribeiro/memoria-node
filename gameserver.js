@@ -18,7 +18,7 @@ var app = require('http').createServer();
 // });
 
 var io = require('socket.io')(app);
-
+var request=require('request');
 var Game = require('./gamemodel.js');
 var GameList = require('./gamelist.js');
 
@@ -37,10 +37,13 @@ io.on('connection', function (socket) {
 
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
-    	let game = games.createGame(data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
-		socket.join(game.gameID);
-		socket.emit('my_active_games_changed');
-		io.emit('lobby_changed');
+        request.get('http://127.0.0.1:8000/api/images',function(err,res,body){
+            let game = games.createGame(JSON.parse(body), data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
+            socket.join(game.gameID);
+            socket.emit('my_active_games_changed');
+            io.emit('lobby_changed');
+        });
+
     });
 
     socket.on('get_games_lobby', function(data){
@@ -82,7 +85,7 @@ io.on('connection', function (socket) {
                 game.hidePieces(); 
                 io.to(data.id).emit('my_active_games_changed');
                 if(game.players[(game.playerTurn-1)].bot){
-                    let botResult=false;
+                    
                     do{
                         botResult=game.botPlay();
                         io.to(data.id).emit('my_active_games_changed');
