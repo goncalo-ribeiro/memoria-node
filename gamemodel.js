@@ -29,6 +29,8 @@ class Game {
         this.currMax=-1;
         this.lastPlay=null;
         this.hasBot=false;
+        this.actions=[];
+        this.startingPlayers=[];
     }
 
     formatDate(date){
@@ -82,6 +84,7 @@ class Game {
     }
 
     revealPiece(index){
+        this.actions[this.actions.length]=index;
         if(this.lastPlay===null){
             this.lastPlay=new Date().getTime();
         }
@@ -125,7 +128,7 @@ class Game {
                     this.currMax=this.players[this.playerTurn-1].score;
                     this.firstMax=this.players[this.playerTurn-1].name;
                 }
-                if(this.noMorePieces() || (this.players.length === 1 && this.gameSize !== 1)){
+                if(this.noMorePieces()){
                     this.gameEnded=true;
                     this.winner=this.firstMax;
                 }
@@ -174,6 +177,8 @@ class Game {
             }
         }
         if (kick) {
+            this.actions[this.actions.length]=-1;
+            this.actions[this.actions.length]=key;
             this.players.splice(key, 1);
             this.playerTurn--;
             if(this.players.length==1){
@@ -196,6 +201,7 @@ class Game {
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;
+            this.startingPlayers=this.players;
         }
     }
 

@@ -51,6 +51,11 @@ io.on('connection', function (socket) {
         socket.emit('lobby_games_changed', {lobbyGames: games.getLobbyGamesOf(socket.id)} );
     });
 
+    socket.on('get_replay_lobby', function(){
+        console.log('A replay list request has been filed');
+        socket.emit('replay_lobby_games_changed', {lobbyGames: games.getReplayableLobbyGames()} );
+    });
+
     socket.on('get_active_games', function(data){
         socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
     });
@@ -85,13 +90,15 @@ io.on('connection', function (socket) {
                 game.hidePieces(); 
                 io.to(data.id).emit('my_active_games_changed');
                 if(game.players[(game.playerTurn-1)].bot){
-                    
+                    let botresult;
                     do{
                         botResult=game.botPlay();
                         io.to(data.id).emit('my_active_games_changed');
                         if(botResult===false && !game.gameEnded){
-                            setTimeout(function(){ game.hidePieces() }, 1000);
-                            setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
+                            setTimeout(function(){ 
+                                game.hidePieces();
+                                io.to(data.id).emit('my_active_games_changed');
+                             }, 1000);
                         }
                     }while(botResult);
                 }
@@ -132,10 +139,8 @@ io.on('connection', function (socket) {
         let game = games.gameByID(data.id);
         if (game.gameEnded) {
             games.removeGame(data.id, socket.id);
-            console.log('socket ' + socket.id + ' removed from game!');
             socket.leave(data.id);
-            console.log('socket ' + socket.id + ' left room!');
-            socket.emit('active_games_changed', {activeGames: games.getConnectedGamesOf(socket.id)} );
+            socket.emit('active_games_changed', { activeGames: games.getConnectedGamesOf(socket.id) } );
         }
     });
 
@@ -146,5 +151,10 @@ io.on('connection', function (socket) {
             io.to(data.id).emit('my_active_games_changed');    
             io.emit('lobby_changed');
         }
+    });
+
+    socket.on('watch_game', function(data){
+        let game = games.replayGameByID(data.gameId);
+        socket.emit('new_active_replay', { game: game } );
     });
 });

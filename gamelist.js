@@ -2,6 +2,9 @@
 
 var Game = require('./gamemodel.js');
 var GameProxy = require('./gameproxy.js');
+var GameLobby = require('./gamelobby.js');
+var ReplayGame = require('./replaygame.js');
+var ReplayGameLobby = require('./replaygamelobby.js');
 
 class GameList {
 	constructor() {
@@ -27,6 +30,7 @@ class GameList {
     	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0, bot: false, botType: null};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
+            game.startingPlayers=game.players;
         }
     	return game;
     }
@@ -41,13 +45,13 @@ class GameList {
                 game.players[i].socket = "";
             }
         }
-        for(let i=0; i<game.players.length; i++){
+        /*for(let i=0; i<game.players.length; i++){
             if (game.players[i].socket != "") {
                 return game;
             }
         }
     	
-    	this.games.delete(gameID);
+    	this.games.delete(gameID);*/
     	return game;
     }
 
@@ -77,11 +81,30 @@ class GameList {
                     }
                 }
                 if(toReturn){
-                    games.push(value);
+                    games.push(new GameLobby(value));
                 }
     		}
 		}
 		return games;
+    }
+
+    getReplayableLobbyGames() {
+        let games = [];
+        for (var [key, value] of this.games) {
+            if (value.gameEnded)  {
+                games.push(new ReplayGameLobby(value));
+            }
+        }
+        return games;
+    }
+
+    replayGameByID(id){
+        for (var [key, value] of this.games) {
+            if (value.gameEnded && value.gameID == id)  {
+                return new ReplayGame(value);
+            }
+        }
+        return null;
     }
 }
 
