@@ -17,6 +17,7 @@ class GameProxy {
         }
         this.created = game.created;
         this.lastPlay=game.lastPlay;
+        this.hasBot=game.hasBot;
     }
 
 }

@@ -121,6 +121,7 @@ io.on('connection', function (socket) {
                 }
                 if (kick) {
                     game.kickPlayer(data.player);
+                    //SOCKET LEAVE data.player.socket
                     io.to(data.gameId).emit('my_active_games_changed');
                 }
             }

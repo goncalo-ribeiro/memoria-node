@@ -28,6 +28,7 @@ class Game {
         this.firstMax='';
         this.currMax=-1;
         this.lastPlay=null;
+        this.hasBot=false;
     }
 
     formatDate(date){
@@ -85,13 +86,15 @@ class Game {
             this.lastPlay=new Date().getTime();
         }
         this.board[index].show=true;
-        if(this.knownPieces[index]===undefined){
-            this.knownPieces[index]=this.board[index].piece;
-        }
-        for(let i=0; i<this.hiddenPieces.length; i++){
-            if(this.hiddenPieces[i] === index){
-                this.hiddenPieces.splice(i, 1);
-                break;
+        if(this.hasBot){
+            if(this.knownPieces[index]===undefined){
+                this.knownPieces[index]=this.board[index].piece;
+            }
+            for(let i=0; i<this.hiddenPieces.length; i++){
+                if(this.hiddenPieces[i] === index){
+                    this.hiddenPieces.splice(i, 1);
+                    break;
+                }
             }
         }
         if(this.firstPiece===null){
@@ -100,18 +103,20 @@ class Game {
         }else{
             this.lastPlay=new Date().getTime();
             if(this.board[this.firstPiece].piece === this.board[index].piece){
-                delete this.knownPieces[this.fistPiece];
-                delete this.knownPieces[index];
-                for(let i=0; i<this.availablePieces.length; i++){
-                    if(this.availablePieces[i] == this.firstPiece){
-                        this.availablePieces.splice(i, 1);
-                        break;
+                if(this.hasBot){
+                    delete this.knownPieces[this.fistPiece];
+                    delete this.knownPieces[index];
+                    for(let i=0; i<this.availablePieces.length; i++){
+                        if(this.availablePieces[i] == this.firstPiece){
+                            this.availablePieces.splice(i, 1);
+                            break;
+                        }
                     }
-                }
-                for(let i=0; i<this.availablePieces.length; i++){
-                    if(this.availablePieces[i] == index){
-                        this.availablePieces.splice(i, 1);
-                        break;
+                    for(let i=0; i<this.availablePieces.length; i++){
+                        if(this.availablePieces[i] == index){
+                            this.availablePieces.splice(i, 1);
+                            break;
+                        }
                     }
                 }
                 this.firstPiece=null;
@@ -181,6 +186,7 @@ class Game {
     }
 
     addBot(bot){
+        this.hasBot=true;
         if(bot <= 0.33){
             this.players[this.players.length]={id: '', name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
         }else if(bot <= 0.67){
@@ -194,10 +200,10 @@ class Game {
     }
 
     botPlay(){
-        if(Math.round(Math.random()) < this.players[this.playerTurn-1].botType){
-            return this.dumbBot();
-        }else{
+        if(Math.random() <= this.players[this.playerTurn-1].botType && this.players[this.playerTurn-1].botType != 0){
             return this.smartBot();
+        }else{
+            return this.dumbBot();
         }
     }
 
