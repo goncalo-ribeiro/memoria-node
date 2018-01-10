@@ -78,20 +78,21 @@ io.on('connection', function (socket) {
             io.to(data.id).emit('my_active_games_changed');
         }else if(result === -1){//Match fail
             io.to(data.id).emit('my_active_games_changed');
-            setTimeout(function(){ game.hidePieces() }, 1000);
-            setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
-            setTimeout(function(){ if(game.players[(game.playerTurn-1)].bot){
-                let botResult=false;
-                do{
-                    botResult=game.botPlay();
-                    io.to(data.id).emit('my_active_games_changed');
-                    if(botResult===false && !game.gameEnded){
-                        setTimeout(function(){ game.hidePieces() }, 1000);
-                        setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
-                    }
-                }while(botResult);
-            } }, 1000);
-            
+            setTimeout(function(){ 
+                game.hidePieces(); 
+                io.to(data.id).emit('my_active_games_changed');
+                if(game.players[(game.playerTurn-1)].bot){
+                    let botResult=false;
+                    do{
+                        botResult=game.botPlay();
+                        io.to(data.id).emit('my_active_games_changed');
+                        if(botResult===false && !game.gameEnded){
+                            setTimeout(function(){ game.hidePieces() }, 1000);
+                            setTimeout(function(){ io.to(data.id).emit('my_active_games_changed'); }, 1000);
+                        }
+                    }while(botResult);
+                }
+            }, 1000);
         }else{
             if (game.gameStarted === false){
                 socket.emit('alert', {message : "The game hasn't started jabroni!\nYou have to wait until another player joins"});
