@@ -201,7 +201,9 @@ class Game {
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;
-            this.startingPlayers=this.players;
+            for(let i=0; i<this.player.length; i++){
+                this.startingPlayers[i]={ id: this.players[i].id, name: this.players[i].name, socket: this.players[i].socket, score: this.players[i].score, bot: this.players[i].bot, botType: this.players[i].botType };
+            } 
         }
     }
 

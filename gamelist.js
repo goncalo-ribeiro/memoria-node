@@ -30,7 +30,9 @@ class GameList {
     	game.players[game.players.length] = {id: playerId, name: playerName, socket: socketID, score: 0, bot: false, botType: null};
         if(game.players.length == game.gameSize){
             game.gameStarted=true;
-            game.startingPlayers=game.players;
+            for(let i=0; i<game.players.length; i++){
+                game.startingPlayers[i]={ id: game.players[i].id, name: game.players[i].name, socket: game.players[i].socket, score: game.players[i].score, bot: game.players[i].bot, botType: game.players[i].botType };
+            }
         }
     	return game;
     }
