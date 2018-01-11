@@ -17,7 +17,8 @@ class Game {
         this.players = [];
         this.playerTurn = 1;
         this.tempTurn = 0;
-        this.winner = 0;
+        this.winner = '';
+        this.winnerId = null;
         this.firstPiece = null;
         this.secondPiece = null;
         this.availablePieces=[];
@@ -25,8 +26,9 @@ class Game {
         this.hiddenPieces=[];
         this.board = this.newBoard(pieces, this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
-        this.firstMax='';
-        this.currMax=-1;
+        this.firstMax=[];
+        this.firstMaxId=[];
+        this.currMax=[];
         this.lastPlay=null;
         this.hasBot=false;
         this.actions=[];
@@ -131,13 +133,15 @@ class Game {
                 }
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
-                if(this.players[this.playerTurn-1].score > this.currMax){
-                    this.currMax=this.players[this.playerTurn-1].score;
-                    this.firstMax=this.players[this.playerTurn-1].name;
+                for(let i=0; i<this.players.length; i++){
+                    if(this.currMax[i] === undefined || this.players[this.playerTurn-1].score > this.currMax[i]){
+                        this.currMax[i]=this.players[this.playerTurn-1].score;
+                        this.firstMax[i]=this.players[this.playerTurn-1].name;
+                        this.firstMaxId[i]=this.players[this.playerTurn-1].id;
+                    }
                 }
                 if(this.noMorePieces()){
-                    this.gameEnded=true;
-                    this.winner=this.firstMax;
+                    this.endGame();
                 }
                 return 1;
             }
@@ -146,6 +150,25 @@ class Game {
             this.playerTurn=0;
             return -1;
         }
+    }
+
+    endGame(){
+        this.gameEnded=true;
+        for(let i=0; i<this.firstMax.length; i++){
+            if(this.inPlayers(this.firstMaxId[i])){
+                this.winner=this.firstMax[i];
+                this.winnerId=this.firstMaxId[i];
+            }
+        }
+    }
+
+    inPlayers(id){
+        for(let i=0; i<this.players.length; i++){
+            if(this.players[i].id === id){
+                return true;
+            }
+        }
+        return false;
     }
 
     hidePieces(){
@@ -191,6 +214,7 @@ class Game {
             if(this.players.length==1){
                 this.gameEnded=true;
                 this.winner=this.players[0].name;
+                this.winnerId=this.players[0].id;
             }
             this.nextPlayer();
             this.lastPlay=new Date().getTime();
