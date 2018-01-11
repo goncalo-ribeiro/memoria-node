@@ -9,6 +9,9 @@ class ReplayGame {
         this.gameSize = game.gameSize;
         this.colunas = game.colunas;
         this.players = game.startingPlayers;
+        for(let i=0; i<this.players; i++){
+            this.players[i].score=0;
+        }
         this.playerTurn = 1;
         this.winner = game.winner;
         this.firstPiece = null;
