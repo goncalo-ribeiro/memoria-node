@@ -31,6 +31,7 @@ class Game {
         this.hasBot=false;
         this.actions=[];
         this.startingPlayers=[];
+        this.hidden='';
     }
 
     formatDate(date){
@@ -42,11 +43,17 @@ class Game {
 
     newBoard(pieces, linhas, colunas){
         let all=[];
+        let hidden=[];
         for(let i=0; i<pieces.length; i++){
             if(pieces[i].active){
+            	if(pieces[i].face !== 'hidden'){
                 all[all.length]=pieces[i].path.split('.')[0];
-            }
+	            }else{
+	            	hidden[hidden.length]=pieces[i].path.split('.')[0];
+	            }
+	        }
         }
+        this.hidden=hidden[Math.round(Math.random()*(hidden.length-1))];
         const total = linhas*colunas;
         let temp=[];
         let random;
@@ -201,7 +208,7 @@ class Game {
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;
-            for(let i=0; i<this.player.length; i++){
+            for(let i=0; i<this.players.length; i++){
                 this.startingPlayers[i]={ id: this.players[i].id, name: this.players[i].name, socket: this.players[i].socket, score: this.players[i].score, bot: this.players[i].bot, botType: this.players[i].botType };
             } 
         }

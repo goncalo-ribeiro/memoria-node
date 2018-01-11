@@ -16,6 +16,7 @@ class ReplayGame {
         this.board = this.newBoard(game.board);
         this.actions= game.actions;
         this.currAction = 0;
+        this.hidden=game.hidden;
     }
 
     newBoard(board){

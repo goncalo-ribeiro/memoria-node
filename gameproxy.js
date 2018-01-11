@@ -13,7 +13,7 @@ class GameProxy {
         this.winner = game.winner;
         this.board = [];
         for(let i =0; i<game.board.length; i++){
-            this.board[i] = game.board[i].show ? game.board[i].piece : 'hidden';
+            this.board[i] = game.board[i].show ? game.board[i].piece : game.hidden;
         }
         this.created = game.created;
         this.lastPlay=game.lastPlay;
