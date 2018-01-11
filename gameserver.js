@@ -144,13 +144,13 @@ io.on('connection', function (socket) {
                     io.to(data.gameId).emit('my_active_games_changed');
                     if(game.gameEnded){
                         //enviar jogo para a BD
-                        request.post({
+                        /*request.post({
                           headers: {'content-type' : 'application/x-www-form-urlencoded'},
                           url:     'http://localhost/test2.php',
                           body:    "mes=heydude"
                         }, function(error, response, body){
                           console.log(body);
-                        });
+                        });*/
                     }
                 }
             }
