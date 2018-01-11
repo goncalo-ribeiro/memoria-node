@@ -72,6 +72,15 @@ io.on('connection', function (socket) {
         }
     });
 
+    socket.on('start', function(data){
+        let game = games.gameByID(data.id);
+        if(game.players[0].id == data.player){
+            game.gameSize=game.players.length;
+            game.gameStarted=true;
+            io.to(data.id).emit('my_active_games_changed');   
+        }
+    });
+
     socket.on('play', function(data){
         let game = games.gameByID(data.id);
         let playerNumber;
@@ -84,6 +93,9 @@ io.on('connection', function (socket) {
         let result = game.play(playerNumber, data.index);
         if (result === 1 || result === 0){//Piece Match or first move
             io.to(data.id).emit('my_active_games_changed');
+            if(game.gameEnded){
+                //enviar jogo para a BD
+            }
         }else if(result === -1){//Match fail
             io.to(data.id).emit('my_active_games_changed');
             setTimeout(function(){ 
@@ -130,6 +142,16 @@ io.on('connection', function (socket) {
                     game.kickPlayer(data.player);
                     //SOCKET LEAVE data.player.socket
                     io.to(data.gameId).emit('my_active_games_changed');
+                    if(game.gameEnded){
+                        //enviar jogo para a BD
+                        request.post({
+                          headers: {'content-type' : 'application/x-www-form-urlencoded'},
+                          url:     'http://localhost/test2.php',
+                          body:    "mes=heydude"
+                        }, function(error, response, body){
+                          console.log(body);
+                        });
+                    }
                 }
             }
         }
