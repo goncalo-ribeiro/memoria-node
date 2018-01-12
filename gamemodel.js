@@ -1,7 +1,7 @@
 /*jshint esversion: 6 */
 
 class Game {
-    constructor(ID, pieces, name, gameSize, linhas, colunas) {
+    constructor(ID, playerId, pieces, name, gameSize, token, linhas, colunas) {
         this.gameID = ID;
         this.name = name;
         this.gameEnded = false;
@@ -34,6 +34,16 @@ class Game {
         this.hasBot=false;
         this.actions=[];
         this.startingPlayers=[];
+        this.token = token;
+        this.createdBy=playerId;
+    }
+
+    players(){
+        let players = [];
+        for(let i=0; i<this.players.length; i++){
+            players[i]=this.players[i].id;
+        }
+        return players;
     }
 
     formatDate(date){
@@ -225,11 +235,11 @@ class Game {
     addBot(bot){
         this.hasBot=true;
         if(bot <= 0.33){
-            this.players[this.players.length]={id: '', name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 1, name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
         }else if(bot <= 0.67){
-            this.players[this.players.length]={id: '', name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 1, name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: bot};
         }else{
-            this.players[this.players.length]={id: '', name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 1, name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: bot};
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;

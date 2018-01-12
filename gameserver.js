@@ -19,6 +19,7 @@ var app = require('http').createServer();
 
 var io = require('socket.io')(app);
 var request=require('request');
+var axios=require('axios');
 var Game = require('./gamemodel.js');
 var GameList = require('./gamelist.js');
 
@@ -41,8 +42,8 @@ io.on('connection', function (socket) {
 	
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
-        request.get('http://127.0.0.1:8000/api/images',function(err,res,body){
-            let game = games.createGame(JSON.parse(body), data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
+        request.get('http://54.234.43.42/api/images',function(err,res,body){
+            let game = games.createGame(JSON.parse(body), data.name, data.playerId, data.playerName, socket.id, data.size, data.token, data.linhas, data.colunas);
             socket.join(game.gameID);
             socket.emit('my_active_games_changed');
             io.emit('lobby_changed');
@@ -98,7 +99,31 @@ io.on('connection', function (socket) {
         if (result === 1 || result === 0){//Piece Match or first move
             io.to(data.id).emit('my_active_games_changed');
             if(game.gameEnded){
-                //enviar jogo para a BD
+                let players = [];
+                for(let i=0; i<game.players.length; i++){
+                    players[i]=game.players[i].id;
+                }
+
+                axios({
+                    method: 'post',
+                    url: 'http://54.234.43.42/api/games',
+                    headers: {
+                        'Accept' : 'application/json',
+                        'Content-Type' : 'application/json',
+                        'Authorization': 'Bearer ' + game.token,
+                    },
+                    data: {
+                        total_players: game.gameSize,
+                        created_by: game.createdBy,
+                        winner: game.winnerId,
+                        players: players
+                    }
+                }).then(response=>{
+                    console.log(response);                    
+                })
+                .catch(error=>{
+                    console.log(error);
+                });
             }
         }else if(result === -1){//Match fail
             io.to(data.id).emit('my_active_games_changed');
@@ -115,6 +140,32 @@ io.on('connection', function (socket) {
                                 game.hidePieces();
                                 io.to(data.id).emit('my_active_games_changed');
                              }, 1000);
+                        }
+                        if(game.gameEnded){
+                            let players = [];
+                            for(let i=0; i<game.players.length; i++){
+                                players[i]=game.players[i].id;
+                            }
+                            axios({
+                                method: 'post',
+                                url: 'http://54.234.43.42/api/games',
+                                headers: {
+                                    'Accept' : 'application/json',
+                                    'Content-Type' : 'application/json',
+                                    'Authorization': 'Bearer ' + game.token,
+                                },
+                                data: {
+                                    total_players: game.gameSize,
+                                    created_by: game.createdBy,
+                                    winner: game.winnerId,
+                                    players: players
+                                }
+                            }).then(response=>{
+                                console.log(response);                    
+                            })
+                            .catch(error=>{
+                                console.log(error);
+                            });
                         }
                     }while(botResult);
                 }
@@ -147,14 +198,30 @@ io.on('connection', function (socket) {
                     //SOCKET LEAVE data.player.socket
                     io.to(data.gameId).emit('my_active_games_changed');
                     if(game.gameEnded){
-                        //enviar jogo para a BD
-                        /*request.post({
-                          headers: {'content-type' : 'application/x-www-form-urlencoded'},
-                          url:     'http://localhost/test2.php',
-                          body:    "mes=heydude"
-                        }, function(error, response, body){
-                          console.log(body);
-                        });*/
+                        let players = [];
+                        for(let i=0; i<game.players.length; i++){
+                            players[i]=game.players[i].id;
+                        }
+                        axios({
+                            method: 'post',
+                            url: 'http://54.234.43.42/api/games',
+                            headers: {
+                                'Accept' : 'application/json',
+                                'Content-Type' : 'application/json',
+                                'Authorization': 'Bearer ' + game.token,
+                            },
+                            data: {
+                                total_players: game.gameSize,
+                                created_by: game.createdBy,
+                                winner: game.winnerId,
+                                players: players
+                            }
+                        }).then(response=>{
+                            console.log(response);                    
+                        })
+                        .catch(error=>{
+                            console.log(error);
+                        });
                     }
                 }
             }
