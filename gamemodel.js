@@ -24,6 +24,7 @@ class Game {
         this.availablePieces=[];
         this.knownPieces={};
         this.hiddenPieces=[];
+        this.hidden='';
         this.board = this.newBoard(pieces, this.linhas, this.colunas);
         this.created = this.formatDate(new Date());
         this.firstMax=[];
@@ -33,7 +34,6 @@ class Game {
         this.hasBot=false;
         this.actions=[];
         this.startingPlayers=[];
-        this.hidden='';
     }
 
     formatDate(date){
@@ -49,7 +49,7 @@ class Game {
         for(let i=0; i<pieces.length; i++){
             if(pieces[i].active){
             	if(pieces[i].face !== 'hidden'){
-                all[all.length]=pieces[i].path.split('.')[0];
+                    all[all.length]=pieces[i].path.split('.')[0];
 	            }else{
 	            	hidden[hidden.length]=pieces[i].path.split('.')[0];
 	            }
@@ -133,11 +133,12 @@ class Game {
                 }
                 this.firstPiece=null;
                 this.players[this.playerTurn-1].score++;
-                for(let i=0; i<this.players.length; i++){
+                for(let i=0; i<this.gameSize; i++){
                     if(this.currMax[i] === undefined || this.players[this.playerTurn-1].score > this.currMax[i]){
                         this.currMax[i]=this.players[this.playerTurn-1].score;
                         this.firstMax[i]=this.players[this.playerTurn-1].name;
                         this.firstMaxId[i]=this.players[this.playerTurn-1].id;
+                        break;
                     }
                 }
                 if(this.noMorePieces()){

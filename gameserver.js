@@ -41,7 +41,7 @@ io.on('connection', function (socket) {
 	
     socket.on('create_game', function (data){
     	console.log('A new game is about to be created');
-        request.get('http://dad_proj.dad/api/images',function(err,res,body){
+        request.get('http://127.0.0.1:8000/api/images',function(err,res,body){
             let game = games.createGame(JSON.parse(body), data.name, data.playerId, data.playerName, socket.id, data.size, data.linhas, data.colunas);
             socket.join(game.gameID);
             socket.emit('my_active_games_changed');
