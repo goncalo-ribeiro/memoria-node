@@ -235,11 +235,11 @@ class Game {
     addBot(bot){
         this.hasBot=true;
         if(bot <= 0.33){
-            this.players[this.players.length]={id: 1, name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 2, name: 'Bot Charlie', socket: -1, score: 0, bot: true, botType: bot};
         }else if(bot <= 0.67){
-            this.players[this.players.length]={id: 1, name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 2, name: 'Bot Frank', socket: -1, score: 0, bot: true, botType: bot};
         }else{
-            this.players[this.players.length]={id: 1, name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: bot};
+            this.players[this.players.length]={id: 2, name: 'Bot Dennis', socket: -1, score: 0, bot: true, botType: bot};
         }
         if(this.players.length == this.gameSize){
             this.gameStarted=true;
