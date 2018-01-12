@@ -169,6 +169,7 @@ class Game {
             if(this.inPlayers(this.firstMaxId[i])){
                 this.winner=this.firstMax[i];
                 this.winnerId=this.firstMaxId[i];
+                break;
             }
         }
     }
